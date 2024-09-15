@@ -33,9 +33,22 @@ import lombok.Data;
 @Data
 public class Medicine {
 
-    
+    /**
+     * No-argument constructor for Medicine.
+     * To be used in Dev phase only.
+     */
     public Medicine() {}
 
+    /**
+     * Constructor for Medicine with all the parameters.
+     *
+     * @param name        the name of the medicine
+     * @param expiryDate  the expiry date of the medicine
+     * @param companyName the company name of the medicine
+     * @param quantity    the quantity of the medicine
+     * @param price       the price of the medicine
+     * @param description the description of the medicine
+     */
     public Medicine(String name, LocalDate expiryDate, String companyName, int quantity, double price,
             String description) {
 
@@ -46,31 +59,88 @@ public class Medicine {
         this.price = price;
         this.description = description;
     }
-    
+
+    /**
+     * The id of the medicine.
+     */
     @Id
     private int id;
+
+    /**
+     * The name of the medicine.
+     */
     private String name;
 
+    /**
+     * The expiry date of the medicine.
+     * 
+     * @see #setExpiryDate(LocalDate)
+     * @see #getExpiryDate()
+     */
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(name = "expiryDate")
     private LocalDate expiryDate;
 
+    /**
+     * The company name of the medicine.
+     * 
+     * @see #setCompanyName(String)
+     * @see #getCompanyName()
+     */
     @Column(name = "companyName")
     private String companyName;
 
+    /**
+     * The quantity of the medicine.
+     * 
+     * @see #setQuantity(int)
+     * @see #getQuantity()
+     */
     private int quantity;
+
+    /**
+     * The price of the medicine.
+     * 
+     * @see #setPrice(double)
+     * @see #getPrice()
+     */
     private double price;
 
+    /**
+     * The description of the medicine.
+     * 
+     * @see #setDescription(String)
+     * @see #getDescription()
+     */
     @Column(length = 245)
     private String description;
 
-    @Column(length = 8)
-    private String medicineStatus = "inactive";
+    /**
+     * The availability status of the medicine in the store. Possible values are
+     * false or true. When the medicineAvilabilityStatus is true, it can be ordered by
+     * customers.
+     * 
+     * @see #setMedicineAvilability(boolean)
+     * @see #isMedicineAvilability()
+     */
+    private boolean medicineAvilability = false;
 
+    /**
+     * The vendors list of the medicine.
+     * 
+     * @see #setVendors(List)
+     * @see #getVendors()
+     */
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Vendor> vendors;
 
+    /**
+     * The customers list of the medicine.
+     * 
+     * @see #setCustomers(List)
+     * @see #getCustomers()
+     */
     @ManyToMany(mappedBy = "medicines")
     private List<Customer> customers;
 }

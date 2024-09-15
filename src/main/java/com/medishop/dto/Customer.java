@@ -1,8 +1,8 @@
 package com.medishop.dto;
 
-import java.time.LocalDate;
+import lombok.Data;
 import java.util.List;
-
+import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -11,16 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Transient;
-import lombok.Data;
 
 /**
  * Entity class for customer
  * 
  * @author Shyam Shukla
  */
+// @XmlRootElement
 @Entity
 @Data
-// @XmlRootElement
 public class Customer {
 
     /**
@@ -62,27 +61,11 @@ public class Customer {
      * @param email    email of the customer
      * @param password password of the customer
      * @param phone    phone number of the customer
-     * @param address  address of the customer
-     */
-    public Customer(String name, String email, String password, long phone, String address) {
-
-        this(name, email, password, phone);
-        this.address = address;
-    }
-
-    /**
-     * Constructor to create customer object
-     * 
-     * @param name     name of the customer
-     * @param email    email of the customer
-     * @param password password of the customer
-     * @param address  address of the customer
-     * @param phone    phone number of the customer
      * @param adhar    adhar number of the customer
      */
-    public Customer(String name, String email, String password, long phone, String address, long adhar) {
+    public Customer(String name, String email, String password, long phone, long adhar) {
 
-        this(name, email, password, phone, address);
+        this(name, email, password, phone);
         this.adhar = adhar;
     }
 
@@ -93,14 +76,12 @@ public class Customer {
      * @param email    email of the customer
      * @param password password of the customer
      * @param phone    phone number of the customer
-     * @param address  address of the customer
      * @param adhar    adhar number of the customer
      * @param dob      date of birth of the customer
      */
-    public Customer(String name, String email, String password, long phone, String address,
-                    long adhar, LocalDate dob) {
+    public Customer(String name, String email, String password, long phone, long adhar, LocalDate dob) {
 
-        this(name, email, password, phone, address, adhar);
+        this(name, email, password, phone, adhar);
         this.dob = dob;
     }
 
@@ -148,7 +129,7 @@ public class Customer {
 	 * @see #setAddress(String)
 	 * @see #getAddress()
 	 */
-	private String address;
+	private Address address;
 
 	/**
 	 * Phone number of the customer
