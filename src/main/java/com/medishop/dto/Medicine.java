@@ -121,9 +121,20 @@ public class Medicine {
      * customers.
      * 
      * @see #setMedicineAvilability(boolean)
-     * @see #isMedicineAvilability()
+     * @see #getMedicineAvilability()
      */
     private boolean medicineAvilability = false;
+
+    /**
+     * Gets the availability status of the medicine.
+     *
+     * @return true if the medicine is available, false otherwise
+     */
+    public boolean getMedicineAvilability() {
+        return medicineAvilability;
+    }
+
+
 
     /**
      * The vendors list of the medicine.
