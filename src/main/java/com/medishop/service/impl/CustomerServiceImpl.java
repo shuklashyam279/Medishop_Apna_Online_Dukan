@@ -71,25 +71,21 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public ResponseStructure<Customer> getCustomerByIdService(int id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ResponseStructure<Customer> getCustomerByEmailService(String email) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Customer> getCustomersService() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ResponseStructure<List<Customer>> updateCustomerByEmailService(Customer customer) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
