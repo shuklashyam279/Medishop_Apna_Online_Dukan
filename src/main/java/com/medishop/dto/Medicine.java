@@ -1,157 +1,115 @@
 package com.medishop.dto;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 import lombok.Data;
 
-/**
-     * Medicine class is used to store details of Medicines.
-     * It consists of id, name, expiry date, Manufacture company name, quantity, price and description.
-     *
-     * @param id to store id of the medicine.
-     * @param name to store name of the medicine.
-     * @param expiryDate to store expiry date of the medicine.
-     * @param companyName to store company name of the medicine.
-     * @param quantity to store quantity of the medicine.
-     * @param price to store price of the medicine.
-     * @param description to store description of the medicine.
-     * @param vendors to store vendors of the medicine.
-     * 
-     * @author Shyam Shukla
-     */
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
+/**
+ * Medicine class represents details of medicines in the system.
+ * It includes information such as id, name, expiry date, manufacturer, quantity, price, and description.
+ *
+ * @author Shyam Shukla
+ */
 @Entity
 @Data
 public class Medicine {
 
-    /**
-     * No-argument constructor for Medicine.
-     * To be used in Dev phase only.
-     */
-    public Medicine() {}
-
-    /**
-     * Constructor for Medicine with all the parameters.
-     *
-     * @param name        the name of the medicine
-     * @param expiryDate  the expiry date of the medicine
-     * @param companyName the company name of the medicine
-     * @param quantity    the quantity of the medicine
-     * @param price       the price of the medicine
-     * @param description the description of the medicine
-     */
-    public Medicine(String name, LocalDate expiryDate, String companyName, int quantity, double price,
-            String description) {
-
-        this.name = name;
-        this.expiryDate = expiryDate;
-        this.companyName = companyName;
-        this.quantity = quantity;
-        this.price = price;
-        this.description = description;
-    }
-
-    /**
-     * The id of the medicine.
-     */
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    /**
-     * The name of the medicine.
-     */
+    @NotBlank(message = "Medicine name is required")
+    @Column(nullable = false)
     private String name;
-
-    /**
-     * The expiry date of the medicine.
-     * 
-     * @see #setExpiryDate(LocalDate)
-     * @see #getExpiryDate()
-     */
+    
     @JsonFormat(pattern = "dd-MM-yyyy")
-    @Column(name = "expiryDate")
+    @Column(name = "expiry_date", nullable = false)
+    @Future(message = "Expiry date must be in the future")
     private LocalDate expiryDate;
 
-    /**
-     * The company name of the medicine.
-     * 
-     * @see #setCompanyName(String)
-     * @see #getCompanyName()
-     */
-    @Column(name = "companyName")
+    @Column(name = "company_name", nullable = false)
+    @NotBlank(message = "Manufacturer name is required")
     private String companyName;
 
-    /**
-     * The quantity of the medicine.
-     * 
-     * @see #setQuantity(int)
-     * @see #getQuantity()
-     */
-    private int quantity;
+    @Min(value = 0, message = "Quantity cannot be negative")
+    @Column(nullable = false)
+    private Integer quantity;
 
-    /**
-     * The price of the medicine.
-     * 
-     * @see #setPrice(double)
-     * @see #getPrice()
-     */
-    private double price;
+    @DecimalMin(value = "0.01", inclusive = false, message = "Price must be greater than 0")
+    @Column(nullable = false)
+    private BigDecimal price;
 
-    /**
-     * The description of the medicine.
-     * 
-     * @see #setDescription(String)
-     * @see #getDescription()
-     */
     @Column(length = 245)
     private String description;
 
     /**
-     * The availability status of the medicine in the store. Possible values are
-     * false or true. When the medicineAvilabilityStatus is true, it can be ordered by
-     * customers.
-     * 
-     * @see #setMedicineAvilability(boolean)
-     * @see #getMedicineAvilability()
+     * The availability status of the medicine in the store.
+     * When true, the medicine can be ordered by customers.
      */
-    private boolean medicineAvilability = false;
+    @Column(name = "is_available")
+    private boolean isAvailable = false;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnore
+    @JoinTable(
+        name = "medicine_vendor",
+        joinColumns = @JoinColumn(name = "medicine_id"),
+        inverseJoinColumns = @JoinColumn(name = "vendor_id")
+    )
+    private Set<Vendor> vendors = new HashSet<>();
+
+    @ManyToMany(mappedBy = "medicines")
+    @JsonIgnore
+    private Set<Customer> customers = new HashSet<>();
+
+    public Medicine() {}
+
+    public Medicine(String name, LocalDate expiryDate, String companyName, int quantity, double price, String description) {
+        this.name = name;
+        this.expiryDate = expiryDate;
+        this.companyName = companyName;
+        this.quantity = quantity;
+        this.price = BigDecimal.valueOf(price);
+        this.description = description;
+    }
 
     /**
-     * Gets the availability status of the medicine.
+     * Checks if the medicine is available.
      *
      * @return true if the medicine is available, false otherwise
      */
-    public boolean getMedicineAvilability() {
-        return medicineAvilability;
+    public boolean isAvailable() {
+        return isAvailable;
     }
 
-
-
     /**
-     * The vendors list of the medicine.
-     * 
-     * @see #setVendors(List)
-     * @see #getVendors()
+     * Sets the availability status of the medicine.
+     *
+     * @param isAvailable the availability status to set
      */
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Vendor> vendors;
+    public void setAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
 
-    /**
-     * The customers list of the medicine.
-     * 
-     * @see #setCustomers(List)
-     * @see #getCustomers()
-     */
-    @ManyToMany(mappedBy = "medicines")
-    private List<Customer> customers;
+    // Other getters and setters are provided by Lombok's @Data annotation
 }

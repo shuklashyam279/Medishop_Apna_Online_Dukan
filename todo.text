@@ -1,0 +1,35 @@
+Vendors: Since admins can register multiple vendors, the Vendor entity would require thorough validation. This might include:
+
+		Business registration details
+		Contact information
+		Bank account details for payments
+		Verification of licenses or certifications
+
+Customers/Patients: In a medical shop context, customers (or patients) would need careful validation:
+
+		Personal identification
+		Medical history
+		Insurance information
+		Prescription verification
+
+Products (Medicines): Given that this is a medical shop, product information needs strict validation:
+
+		Drug composition
+		Dosage information
+		Expiration dates
+		Manufacturer details
+		Regulatory approvals
+
+Prescriptions: If the system handles digital prescriptions:
+
+		Doctor's credentials
+		Patient information
+		Drug details and dosage
+		Validity period	
+
+Orders: Order processing would require validation for:
+
+		Customer/patient details
+		Prescription validity (if applicable)
+		Payment information
+		Shipping details

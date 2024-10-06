@@ -7,10 +7,16 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.*;
+
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Entity class for customer
@@ -22,149 +28,72 @@ import jakarta.persistence.Transient;
 @Data
 public class Customer {
 
-    /**
-     * Constructor to create customer object with NO attributes
-     * To be used in Dev phase only.
-     */
     public Customer() {}
 
-    /**
-     * Constructor to create customer object with least attributes
-     * 
-     * @param name     name of the customer
-     * @param email    email of the customer
-     * @param password password of the customer
-     */
     public Customer(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    /**
-     * Constructor to create customer object
-     * 
-     * @param name     name of the customer
-     * @param email    email of the customer
-     * @param password password of the customer
-     * @param phone    phone number of the customer
-     */
     public Customer(String name, String email, String password, long phone) {
         this(name, email, password);
         this.phone = phone;
     }
 
-    /**
-     * Constructor to create customer object
-     * 
-     * @param name     name of the customer
-     * @param email    email of the customer
-     * @param password password of the customer
-     * @param phone    phone number of the customer
-     * @param adhar    adhar number of the customer
-     */
     public Customer(String name, String email, String password, long phone, long adhar) {
-
         this(name, email, password, phone);
         this.adhar = adhar;
     }
 
-    /**
-     * Constructor to create customer object
-     * 
-     * @param name     name of the customer
-     * @param email    email of the customer
-     * @param password password of the customer
-     * @param phone    phone number of the customer
-     * @param adhar    adhar number of the customer
-     * @param dob      date of birth of the customer
-     */
     public Customer(String name, String email, String password, long phone, long adhar, LocalDate dob) {
-
         this(name, email, password, phone, adhar);
         this.dob = dob;
     }
 
-	/**
-	 * Unique identifier for the customer
-	 */
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	/**
-	 * Name of the customer
-	 */
+	@NotBlank(message = "Name is required")
+	@Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
 	private String name;
 
-	/**
-	 * Date of birth of the customer
-	 * 
-	 * @see #setDob(LocalDate)
-	 * @see #getDob()
-	 */
 	@JsonFormat(pattern = "dd-MM-yyyy")
+	@Past(message = "Date of birth must be in the past")
 	private LocalDate dob;
 
-	/**
-	 * Email address of the customer, unique and not null
-	 * 
-	 * @see #setEmail(String)
-	 * @see #getEmail()
-	 */
 	@Column(unique = true, nullable = false)
+	@NotBlank(message = "Email is required")
+	@Email(message = "Invalid email format")
 	private String email;
 
-	/**
-	 * Password of the customer, length of 8
-	 * 
-	 * @see #setPassword(String)
-	 * @see #getPassword()
-	 */
-	@Column(length = 8)
+	@Column(length = 60)  // Increased length for hashed passwords
+	@NotBlank(message = "Password is required")
+	@Size(min = 8, max = 60, message = "Password must be between 8 and 60 characters")
 	private String password;
 
-	/**
-	 * Address of the customer
-	 * 
-	 * @see #setAddress(String)
-	 * @see #getAddress()
-	 */
 	private Address address;
 
-	/**
-	 * Phone number of the customer
-	 * 
-	 * @see #setPhone(long)
-	 * @see #getPhone()
-	 */
+	@Positive(message = "Phone number must be positive")
+	@Digits(integer = 15, fraction = 0, message = "Invalid phone number")
 	private long phone;
 
-	/**
-	 * Adhar number of the customer, unique and nullable
-	 * 
-	 * @see #setAdhar(long)
-	 * @see #getAdhar()
-	 */
-	@Column(unique = true, nullable = true, length = 12)
+	@Column(unique = true, nullable = true)
+	@Positive(message = "Adhar number must be positive")
+	@Digits(integer = 12, fraction = 0, message = "Adhar number must be 12 digits")
 	private long adhar;
 
-	/**
-	 * Image of the customer, transient and lob
-	 * 
-	 * @see #setImage(byte[])
-	 * @see #getImage()
-	 */
 	@Transient
 	@Lob
 	private byte[] image;
 
-	/**
-	 * List of medicines purchased by the customer, many to many
-	 * 
-	 * @see #setMedicines(List)
-	 * @see #getMedicines()
-	 */
 	@ManyToMany
 	private List<Medicine> medicines;
 
+	private Set<Vendor> vendors = new HashSet<>();
+
+	public Set<Vendor> getVendors() {
+		return vendors;
+	}
 }
