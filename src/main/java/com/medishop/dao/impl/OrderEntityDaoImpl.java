@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.medishop.dao.OrderEntityDao;
-import com.medishop.dto.OrderEntitiy;
+import com.medishop.dto.OrderEntity;
 import com.medishop.repository.OrderEntityRepository;
 
 @Repository
@@ -26,7 +26,7 @@ public class OrderEntityDaoImpl implements OrderEntityDao {
 	 * @return The saved OrderEntitiy object.
 	 */
 	@Override
-	public OrderEntitiy saveOrderEntitiyDao(OrderEntitiy entitiy) {
+	public OrderEntity saveOrderEntitiyDao(OrderEntity entitiy) {
 		return entityRepository.save(entitiy);
 	}
 
@@ -37,8 +37,8 @@ public class OrderEntityDaoImpl implements OrderEntityDao {
 	 * @return The OrderEntitiy object if found, null otherwise.
 	 */
 	@Override
-	public OrderEntitiy getOrderEntitiyByIdDao(long orderId) {
-		Optional<OrderEntitiy> optional = entityRepository.findById(orderId);
+	public OrderEntity getOrderEntitiyByIdDao(long orderId) {
+		Optional<OrderEntity> optional = entityRepository.findById(orderId);
 		return (optional.isPresent())?optional.get():null;
 	}
 

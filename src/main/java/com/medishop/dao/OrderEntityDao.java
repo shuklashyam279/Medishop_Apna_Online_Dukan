@@ -1,12 +1,12 @@
 package com.medishop.dao;
 
-import com.medishop.dto.OrderEntitiy;
+import com.medishop.dto.OrderEntity;
 
 /**
  * @author Shyam Shukla
  */
 public interface OrderEntityDao {
 
-	public OrderEntitiy saveOrderEntitiyDao(OrderEntitiy entitiy);
-	public OrderEntitiy getOrderEntitiyByIdDao(long orderId);
+	public OrderEntity saveOrderEntitiyDao(OrderEntity entitiy);
+	public OrderEntity getOrderEntitiyByIdDao(long orderId);
 }

@@ -2,6 +2,7 @@ package com.medishop.service.impl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,16 +24,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final HttpSession httpSession;
     private final CustomerDao dao;
-    private final ResponseStructure<Customer> structure;
-    private final ResponseStructure<List<Customer>> structure2;
 
     @Autowired
-    public CustomerServiceImpl(HttpSession httpSession, CustomerDao dao, ResponseStructure<Customer> structure, 
-								ResponseStructure<List<Customer>> structure2) {
+    public CustomerServiceImpl(HttpSession httpSession, CustomerDao dao) {
         this.httpSession = httpSession;
         this.dao = dao;
-        this.structure = structure;
-        this.structure2 = structure2;
     }
 
 
@@ -40,33 +36,22 @@ public class CustomerServiceImpl implements CustomerService {
 	public ResponseStructure<Customer> saveCustomerService(Customer customer) {
 		String email = customer.getEmail();
 		String password = customer.getPassword();
-		if (email != null) {
-			if (password != null) {
-				int currentYear = LocalDate.now().getYear();
-				int customerDobYear = customer.getDob().getYear();
-				int age = currentYear - customerDobYear;
-				if (age >= 18) {
-					dao.saveCustomerDao(customer);
-					structure.setData(customer);
-					structure.setMsg("Data Inserted!!!!");
-					structure.setStatus(HttpStatus.CREATED.value());
-				} else {
-					structure.setData(null);
-					structure.setMsg("you are not eligible your age is less than 18");
-					structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-				}
-
-			} else {
-				structure.setData(customer);
-				structure.setMsg("Please check your password!!!!");
-				structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-			}
-		} else {
-			structure.setData(customer);
-			structure.setMsg("Please check your email!!!!");
-			structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
+		
+		if (email == null) {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please check your email!!!!", customer);
 		}
-		return structure;
+		
+		if (password == null) {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please check your password!!!!", customer);
+		}
+		
+		int age = LocalDate.now().getYear() - customer.getDob().getYear();
+		if (age < 18) {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "You are not eligible. Your age is less than 18", null);
+		}
+		
+		dao.saveCustomerDao(customer);
+		return ResponseStructure.createResponse(HttpStatus.CREATED.value(), "Data Inserted!!!!", customer);
 	}
 
 	@Override
@@ -81,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public List<Customer> getCustomersService() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -97,26 +82,18 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public ResponseStructure<Customer> loginCustomerByEmailPasswordService(String email, String password) {
 		
-		Customer customer=dao.getCustomerByEmailDao(email);
+		Customer customer = dao.getCustomerByEmailDao(email);
 		
-		if(customer!=null) {
-			
-			if(customer.getPassword().equals(password)) {
+		if (customer != null) {
+			if (customer.getPassword().equals(password)) {
 				httpSession.setAttribute("customerEmail", email);
-				structure.setMsg("login successfully");
-				structure.setStatus(HttpStatus.ACCEPTED.value());
-				structure.setData(null);
-			}else {
-				structure.setMsg("Invalid Password");
-				structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-				structure.setData(customer);
+				return ResponseStructure.createResponse(HttpStatus.ACCEPTED.value(), "Login successful", null);
+			} else {
+				return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid Password", customer);
 			}
-		}else {
-			structure.setMsg("Invalid Email");
-			structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-			structure.setData(customer);
+		} else {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Invalid Email", null);
 		}
-		return structure;
 	}
 
 	@Override

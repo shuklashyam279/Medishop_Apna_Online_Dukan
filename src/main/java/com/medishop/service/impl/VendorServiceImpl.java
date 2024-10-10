@@ -1,5 +1,6 @@
 package com.medishop.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import com.medishop.dao.VendorDao;
 import com.medishop.dto.Vendor;
 import com.medishop.response.ResponseStructure;
 import com.medishop.service.VendorService;
-import com.medishop.verification.EmailPasswordVerification;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,109 +22,77 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class VendorServiceImpl implements VendorService {
 
+	private final HttpSession httpSession;
+	private final VendorDao dao;
+
 	@Autowired
-	private HttpSession httpSession;
-	@Autowired
-	private VendorDao dao;
-	@Autowired
-	private EmailPasswordVerification verification;
-	@Autowired
-	private ResponseStructure<Vendor> structure;
-	@Autowired
-	private ResponseStructure<List<Vendor>> structure2;
+	public VendorServiceImpl(HttpSession httpSession, VendorDao dao) {
+		this.httpSession = httpSession;
+		this.dao = dao;
+	}
 
 	@Override
 	public ResponseStructure<Vendor> saveVendorService(Vendor vendor) {
-		String email = verification.verifyEmail(vendor.getEmail());
-		String password = verification.verifyPassword(vendor.getPassword());
-		if (email != null) {
-			if (password != null) {
-				dao.saveVendorDao(vendor);
-				structure.setData(vendor);
-				structure.setMsg("Data Inserted!!!");
-				structure.setStatus(HttpStatus.CREATED.value());
-			} else {
-				structure.setData(vendor);
-				structure.setMsg("Please create a vaild password!!!");
-				structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-			}
-		} else {
-			structure.setData(vendor);
-			structure.setMsg("Please enter a vaild email!!!");
-			structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
+		String email = vendor.getEmail();
+		String password = vendor.getPassword();
+		
+		if (email == null || password == null) {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please enter a valid USERNAME and PASSWORD!!!", vendor);
 		}
-		return structure;
-
+		
+		dao.saveVendorDao(vendor);
+		return ResponseStructure.createResponse(HttpStatus.CREATED.value(), "Data Inserted!!!", vendor);
 	}
 
 	@Override
 	public ResponseStructure<Vendor> getVendorByIdService(int id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ResponseStructure<Vendor> getVendorByEmailService(String email) {
-	
-		Vendor vendor=dao.getVendorByEmailDao(email);
+		Vendor vendor = dao.getVendorByEmailDao(email);
 		
-		if(vendor!=null) {
-			structure.setData(vendor);
-			structure.setMsg("vendor found");
-			structure.setStatus(HttpStatus.FOUND.value());
-		}else {
-		
-			structure.setData(vendor);
-			structure.setMsg("vendor not found");
-			structure.setStatus(HttpStatus.NOT_FOUND.value());
+		if (vendor != null) {
+			return ResponseStructure.createResponse(HttpStatus.FOUND.value(), "Vendor found", vendor);
+		} else {
+			return ResponseStructure.createResponse(HttpStatus.NOT_FOUND.value(), "Vendor not found", null);
 		}
-		return structure;
 	}
 
 	@Override
 	public List<Vendor> getVendorsService() {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
 	public ResponseStructure<List<Vendor>> updateVendorByEmailService(Vendor vendor) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ResponseStructure<Vendor> deleteVendorByEmailService(String email) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ResponseStructure<Vendor> loginVendorByEmailAndPasswordService(String email, String password) {
 		Vendor vendor = dao.getVendorByEmailDao(email);
-		System.out.println(vendor);
 		if (vendor != null) {
-
-			if ((vendor.getPassword().equals(password))&&(vendor.getVendorStatus().equalsIgnoreCase("active"))) {
+			if (vendor.getPassword().equals(password) && vendor.getVendorStatus().equalsIgnoreCase("active")) {
 				httpSession.setAttribute("vendorEmail", email);
-				structure.setStatus(HttpStatus.OK.value());
-				structure.setMsg("vendor-----login----successfully");
 				vendor.setPassword("***********");
-				structure.setData(vendor);
+				return ResponseStructure.createResponse(HttpStatus.OK.value(), "Vendor logged in successfully", vendor);
 			} else {
-				structure.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
-				structure.setMsg("password is wrong...or you are not verified vendor please contact with admin");
-				structure.setData(vendor);
+				return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), 
+					"Password is incorrect or vendor is not verified. Please contact admin.", vendor);
 			}
 		} else {
-			structure.setStatus(HttpStatus.NOT_FOUND.value());
-			structure.setMsg("vendor email is wrong");
-			vendor.setPassword("*********************");
-			vendor.setEmail(email);
-			structure.setData(vendor);
+			Vendor dummyVendor = new Vendor();
+			dummyVendor.setEmail(email);
+			dummyVendor.setPassword("*********************");
+			return ResponseStructure.createResponse(HttpStatus.NOT_FOUND.value(), "Vendor email is incorrect", dummyVendor);
 		}
-
-		return structure;
 	}
 
 	/**
@@ -135,9 +103,9 @@ public class VendorServiceImpl implements VendorService {
 		
 		if(httpSession.getAttribute("vendorEmail")!=null) {
 			httpSession.invalidate();
-			return new ResponseEntity<String>("vendor logout success", HttpStatus.OK);
+			return new ResponseEntity<>("vendor logout success", HttpStatus.OK);
 		}else {
-			return new ResponseEntity<String>("Please Login Then Logout", HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>("Please Login Then Logout", HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
 
@@ -150,10 +118,9 @@ public class VendorServiceImpl implements VendorService {
 			
 			dao.vendorVerifyByIdDao(id);
 			
-			return new ResponseEntity<String>("vendor Verified successfully", HttpStatus.OK);
+			return new ResponseEntity<>("vendor Verified successfully", HttpStatus.OK);
 		}else {
-			return new ResponseEntity<String>("Please Login with admin and then verify", HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>("Please Login with admin and then verify", HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
-
 }

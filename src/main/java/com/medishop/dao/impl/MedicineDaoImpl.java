@@ -60,7 +60,7 @@ public class MedicineDaoImpl implements MedicineDao {
 	@Override
 	public List<Medicine> getAllMedicineByNameDao(String name) {
 		return medicineRepository.findByName(name).stream()
-				.filter(Medicine::getMedicineAvilability)
+				.filter(Medicine::isAvailable)
 				.collect(java.util.stream.Collectors.toList());
 	}
 

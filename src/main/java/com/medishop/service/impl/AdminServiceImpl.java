@@ -16,13 +16,11 @@ public class AdminServiceImpl implements AdminService {
 
 	private final AdminDao adminDao;
 	private final HttpSession httpSession;
-	private final ResponseStructure<Admin> responseStructure;
 
 	@Autowired
-	public AdminServiceImpl(HttpSession httpSession, AdminDao adminDao, ResponseStructure<Admin> responseStructure) {
+	public AdminServiceImpl(HttpSession httpSession, AdminDao adminDao) {
 		this.httpSession = httpSession;
 		this.adminDao = adminDao;
-		this.responseStructure = responseStructure;
 	}
 
 	@Override
@@ -31,25 +29,18 @@ public class AdminServiceImpl implements AdminService {
 		Admin admin2 = adminDao.loginAdminByEmailAndPasswordDao(admin);
 
 		if (admin2 != null) {
-
 			if (admin2.getPassword().equals(admin.getPassword())) {
 				httpSession.setAttribute("adminEmail", admin2.getEmail());
-				responseStructure.setStatus(HttpStatus.OK.value());
-				responseStructure.setMsg("Admin---login----successfully");
 				admin2.setPassword("**********");
-				responseStructure.setData(admin2);
+				return ResponseStructure.createResponse(HttpStatus.OK.value(), "Admin login successfully", admin2);
 			} else {
-				responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-				responseStructure.setMsg("Invalid----Password----Please---check");
-				responseStructure.setData(admin);
+				admin.setPassword("************");
+				return ResponseStructure.createResponse(HttpStatus.NOT_FOUND.value(), "Invalid Password. Please check", admin);
 			}
 		} else {
-			responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-			responseStructure.setMsg("Invalid----Email----Please---check");
 			admin.setPassword("************");
-			responseStructure.setData(admin);
+			return ResponseStructure.createResponse(HttpStatus.NOT_FOUND.value(), "Invalid Email. Please check", admin);
 		}
-		return responseStructure;
 	}
 
 	@Override
