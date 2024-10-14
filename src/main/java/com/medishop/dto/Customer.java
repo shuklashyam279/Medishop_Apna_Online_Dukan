@@ -1,18 +1,21 @@
 package com.medishop.dto;
 
 import lombok.Data;
-import java.util.List;
 import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.*;
 
 import java.util.Set;
@@ -25,6 +28,7 @@ import java.util.HashSet;
  */
 // @XmlRootElement
 @Entity
+@Table(name = "customers")
 @Data
 public class Customer {
 
@@ -53,7 +57,7 @@ public class Customer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Long id;
 
 	@NotBlank(message = "Name is required")
 	@Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
@@ -73,6 +77,8 @@ public class Customer {
 	@Size(min = 8, max = 60, message = "Password must be between 8 and 60 characters")
 	private String password;
 
+	@NotNull(message = "Address is required")
+	@Embedded
 	private Address address;
 
 	@Positive(message = "Phone number must be positive")
@@ -89,7 +95,12 @@ public class Customer {
 	private byte[] image;
 
 	@ManyToMany
-	private List<Medicine> medicines;
+	@JoinTable(
+		name = "customer_medicines",
+		joinColumns = @JoinColumn(name = "customer_id"),
+		inverseJoinColumns = @JoinColumn(name = "medicine_id")
+	)
+	private Set<Medicine> medicines = new HashSet<>();
 
 	private Set<Vendor> vendors = new HashSet<>();
 

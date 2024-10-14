@@ -5,19 +5,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.medishop.dao.MedicineDao;
 import com.medishop.dao.VendorDao;
-
 import com.medishop.dto.Medicine;
 import com.medishop.dto.Vendor;
-
 import com.medishop.response.ResponseStructure;
 import com.medishop.service.MedicineService;
 
@@ -70,9 +66,6 @@ public class MedicineServiceImpl implements MedicineService {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public ResponseEntity<String> verifyMedicineStatusByAdminService(int medicineId, int vendorId) {
 	    String adminEmail = (String) httpSession.getAttribute("adminEmail");

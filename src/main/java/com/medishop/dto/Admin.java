@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
+
 /**
 * Admin class is used to store admin details.
 * Admin can register multiple vendors and manage all the vendors registered.
@@ -22,6 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "admins")
 public class Admin {
 
     @Id

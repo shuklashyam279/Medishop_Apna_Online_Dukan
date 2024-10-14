@@ -75,8 +75,7 @@ public class OrderEntity {
 	 * Delivery address for the order.
 	 */
 	@NotNull(message = "Delivery address is required")
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "address_id", nullable = false)
+	@Embedded
 	private Address deliveryAddress;
 	
 	/**

@@ -1,9 +1,6 @@
 package com.medishop.dto;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
@@ -15,13 +12,10 @@ import lombok.Data;
  * 
  * @author Shyam Shukla
  */
-@Entity
+@Embeddable
 @Data
 public class Address {
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @NotBlank(message = "Address line 1 is required")
     @Size(max = 100, message = "Address line 1 must not exceed 100 characters")

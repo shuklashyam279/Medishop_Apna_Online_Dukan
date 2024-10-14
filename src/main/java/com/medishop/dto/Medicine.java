@@ -3,21 +3,19 @@ package com.medishop.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,12 +29,14 @@ import java.util.Set;
  * @author Shyam Shukla
  */
 @Entity
+@Table(name = "medicines")
 @Data
+@NoArgsConstructor
 public class Medicine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @NotBlank(message = "Medicine name is required")
     @Column(nullable = false)
@@ -69,20 +69,15 @@ public class Medicine {
     @Column(name = "is_available")
     private boolean isAvailable = false;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnore
-    @JoinTable(
-        name = "medicine_vendor",
-        joinColumns = @JoinColumn(name = "medicine_id"),
-        inverseJoinColumns = @JoinColumn(name = "vendor_id")
-    )
+    /**
+     * Set of vendors supplying this medicine.
+     */
+    @ManyToMany(mappedBy = "medicines")
     private Set<Vendor> vendors = new HashSet<>();
 
     @ManyToMany(mappedBy = "medicines")
     @JsonIgnore
     private Set<Customer> customers = new HashSet<>();
-
-    public Medicine() {}
 
     public Medicine(String name, LocalDate expiryDate, String companyName, int quantity, double price, String description) {
         this.name = name;
@@ -111,5 +106,23 @@ public class Medicine {
         this.isAvailable = isAvailable;
     }
 
-    // Other getters and setters are provided by Lombok's @Data annotation
+    /**
+     * Adds a vendor to the medicine's set of vendors.
+     *
+     * @param vendor The vendor to add
+     */
+    public void addVendor(Vendor vendor) {
+        this.vendors.add(vendor);
+        vendor.getMedicines().add(this);
+    }
+
+    /**
+     * Removes a vendor from the medicine's set of vendors.
+     *
+     * @param vendor The vendor to remove
+     */
+    public void removeVendor(Vendor vendor) {
+        this.vendors.remove(vendor);
+        vendor.getMedicines().remove(this);
+    }
 }

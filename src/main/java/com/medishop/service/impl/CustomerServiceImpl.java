@@ -31,25 +31,17 @@ public class CustomerServiceImpl implements CustomerService {
         this.dao = dao;
     }
 
-
 	@Override
 	public ResponseStructure<Customer> saveCustomerService(Customer customer) {
 		String email = customer.getEmail();
 		String password = customer.getPassword();
-		
-		if (email == null) {
-			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please check your email!!!!", customer);
+		if (email == null  || password == null) {
+			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please check your email and password!!!!", customer);
 		}
-		
-		if (password == null) {
-			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Please check your password!!!!", customer);
-		}
-		
 		int age = LocalDate.now().getYear() - customer.getDob().getYear();
 		if (age < 18) {
 			return ResponseStructure.createResponse(HttpStatus.NOT_ACCEPTABLE.value(), "You are not eligible. Your age is less than 18", null);
 		}
-		
 		dao.saveCustomerDao(customer);
 		return ResponseStructure.createResponse(HttpStatus.CREATED.value(), "Data Inserted!!!!", customer);
 	}
@@ -81,9 +73,8 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public ResponseStructure<Customer> loginCustomerByEmailPasswordService(String email, String password) {
-		
-		Customer customer = dao.getCustomerByEmailDao(email);
-		
+
+		Customer customer = dao.getCustomerByEmailDao(email);		
 		if (customer != null) {
 			if (customer.getPassword().equals(password)) {
 				httpSession.setAttribute("customerEmail", email);
@@ -98,11 +89,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public ResponseEntity<String> logoutCustomer() {
-		
 		if(httpSession.getAttribute("customerEmail")!=null) {
 			httpSession.invalidate();
 		}
 		return new ResponseEntity<>("Logout---Success", HttpStatus.OK);
 	}
-
 }

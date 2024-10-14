@@ -1,7 +1,7 @@
 package com.medishop.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -31,7 +31,7 @@ public class Vendor {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     /**
      * Name of the vendor. Must be between 2 and 100 characters.
@@ -90,23 +90,16 @@ public class Vendor {
     private String vendorStatus = "inactive";
 
     /**
-     * List of customers associated with this vendor.
+     * Set of medicines supplied by this vendor.
      */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "vendor_customers",
+        name = "vendor_medicines",
         joinColumns = @JoinColumn(name = "vendor_id"),
-        inverseJoinColumns = @JoinColumn(name = "customer_id")
+        inverseJoinColumns = @JoinColumn(name = "medicine_id")
     )
     @Builder.Default
-    private List<Customer> customers = new ArrayList<>();
-
-    /**
-     * List of medicines supplied by this vendor.
-     */
-    @ManyToMany(mappedBy = "vendors", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Medicine> medicines = new ArrayList<>();
+    private Set<Medicine> medicines = new HashSet<>();
 
     /**
      * Admin who manages this vendor.
@@ -116,27 +109,7 @@ public class Vendor {
     private Admin admin;
 
     /**
-     * Adds a customer to the vendor's list of customers.
-     *
-     * @param customer The customer to add
-     */
-    public void addCustomer(Customer customer) {
-        this.customers.add(customer);
-        customer.getVendors().add(this);
-    }
-
-    /**
-     * Removes a customer from the vendor's list of customers.
-     *
-     * @param customer The customer to remove
-     */
-    public void removeCustomer(Customer customer) {
-        this.customers.remove(customer);
-        customer.getVendors().remove(this);
-    }
-
-    /**
-     * Adds a medicine to the vendor's list of medicines.
+     * Adds a medicine to the vendor's set of medicines.
      *
      * @param medicine The medicine to add
      */
@@ -146,7 +119,7 @@ public class Vendor {
     }
 
     /**
-     * Removes a medicine from the vendor's list of medicines.
+     * Removes a medicine from the vendor's set of medicines.
      *
      * @param medicine The medicine to remove
      */
